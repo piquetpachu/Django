@@ -11,7 +11,7 @@
 
     <main class="container-fluid ">
         <div class="row my-5">
-            <h1 class="col text-center">To Do List with <b>Django</b></h1>
+            <h1 class="col text-center">To Do List <b>Django</b></h1>
         </div>
         <div class="row justify-content-center py-5">
 
@@ -34,14 +34,14 @@
                 <form class="w-75" method="post" action={% url "insert" %}>
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="titulo" class="form-label">Subject</label>
+                        <label for="titulo" class="form-label">Titulo</label>
                         <input type="text" class="form-control" name="titulo" id="titulo" aria-describedby="emailHelp">
                     </div>
                     <div class="mb-3">
-                        <label for="descripcion" class="form-label">Description</label>
+                        <label for="descripcion" class="form-label">Descripcion</label>
                         <textarea type="text" name="descripcion" class="form-control" id="descripcion"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-success w-100">Add</button>
+                    <button type="submit" class="btn btn-success w-100">Anadir</button>
                 </form>
             </div>
             {% endif %}
@@ -53,8 +53,8 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ data.titulo }}</h5>
                         <p class="card-text">{{ data.descripcion }}</p>
-                        <a href={% url "update_form" data.id %} class="btn btn-primary">Update</a>
-                        <a href={% url "borrar" data.id %} class="btn btn-danger">Delete</a>
+                        <a href={% url "update_form" data.id %} class="btn btn-primary">Modificar</a>
+                        <a href={% url "borrar" data.id %} class="btn btn-danger">Borrar</a>
                     </div>
                 </div>
                 </div>
