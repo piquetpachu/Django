@@ -1,0 +1,91 @@
+from django.db import models
+from django.contrib.auth.models import User
+
+# Usaremos el User de Django en lugar de hacer uno propio.
+# Si quisieras extenderlo, se puede hacer con un "Profile".
+
+class Rutina(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rutinas")
+    nombre = models.CharField(max_length=100)
+    fecha_inicio = models.DateField(null=True, blank=True)
+    fecha_fin = models.DateField(null=True, blank=True)
+    descripcion = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.nombre} ({self.usuario.username})"
+
+
+class DiaRutina(models.Model):
+    rutina = models.ForeignKey(Rutina, on_delete=models.CASCADE, related_name="dias")
+    nombre_dia = models.CharField(max_length=50)  # Ej: "Lunes - Pecho"
+
+    def __str__(self):
+        return f"{self.nombre_dia} - {self.rutina.nombre}"
+
+
+class Ejercicio(models.Model):
+    TIPOS = [
+        ('fuerza', 'Fuerza'),
+        ('cardio', 'Cardio'),
+        ('movilidad', 'Movilidad'),
+    ]
+    nombre = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=20, choices=TIPOS)
+    grupo_muscular = models.CharField(max_length=50, blank=True)
+    descripcion = models.TextField(blank=True)
+    video_url = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.nombre} ({self.grupo_muscular})"
+
+
+class DiaEjercicio(models.Model):
+    dia = models.ForeignKey(DiaRutina, on_delete=models.CASCADE, related_name="ejercicios")
+    ejercicio = models.ForeignKey(Ejercicio, on_delete=models.CASCADE)
+    orden = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        unique_together = ('dia', 'ejercicio')
+        ordering = ['orden']
+
+    def __str__(self):
+        return f"{self.ejercicio.nombre} en {self.dia.nombre_dia}"
+
+
+class RegistroEntrenamiento(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="registros")
+    ejercicio = models.ForeignKey(Ejercicio, on_delete=models.CASCADE)
+    fecha = models.DateField(auto_now_add=True)
+    series = models.PositiveIntegerField(null=True, blank=True)
+    repeticiones = models.PositiveIntegerField(null=True, blank=True)
+    peso_usado = models.FloatField(null=True, blank=True)
+    tiempo = models.FloatField(null=True, blank=True, help_text="Minutos (para cardio)")
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.ejercicio.nombre} - {self.fecha}"
+
+
+class SerieDetalle(models.Model):
+    registro = models.ForeignKey(RegistroEntrenamiento, on_delete=models.CASCADE, related_name="series_detalle")
+    nro_serie = models.PositiveIntegerField()
+    repeticiones = models.PositiveIntegerField()
+    peso = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['nro_serie']
+
+    def __str__(self):
+        return f"Serie {self.nro_serie} - {self.registro.ejercicio.nombre}"
+
+
+class Progreso(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="progresos")
+    fecha = models.DateField(auto_now_add=True)
+    peso = models.FloatField(null=True, blank=True)
+    grasa_corporal = models.FloatField(null=True, blank=True)
+    medida_cintura = models.FloatField(null=True, blank=True)
+    medida_brazo = models.FloatField(null=True, blank=True)
+    medida_pierna = models.FloatField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.fecha}"
