@@ -1,0 +1,83 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-4 text-light">
+
+  <!-- Bienvenida -->
+  <div class="row mb-4">
+    <div class="col">
+      <h2 class="fw-bold">¡Hola {{ user.username }}! 👋</h2>
+      <p class="text-secondary">Aquí tienes un resumen de tu actividad en el gimnasio.</p>
+    </div>
+  </div>
+
+  <!-- Tarjetas resumen -->
+  <div class="row text-center">
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm bg-secondary text-light border-0 rounded-3">
+        <div class="card-body">
+          <h5 class="card-title text-warning">Rutinas</h5>
+          <p class="display-6 fw-bold">{{ rutinas_count }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm bg-secondary text-light border-0 rounded-3">
+        <div class="card-body">
+          <h5 class="card-title text-info">Entrenamientos</h5>
+          <p class="display-6 fw-bold">{{ entrenamientos_count }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm bg-secondary text-light border-0 rounded-3">
+        <div class="card-body">
+          <h5 class="card-title text-success">Progresos</h5>
+          <p class="display-6 fw-bold">{{ progresos_count }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm bg-secondary text-light border-0 rounded-3">
+        <div class="card-body">
+          <h5 class="card-title text-danger">Ejercicios</h5>
+          <p class="display-6 fw-bold">{{ ejercicios_count }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimos progresos -->
+  <div class="row mt-5">
+    <div class="col">
+      <h4 class="fw-bold text-info">Últimos progresos</h4>
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle rounded-3 overflow-hidden">
+          <thead class="table-light text-dark">
+            <tr>
+              <th>Fecha</th>
+              <th>Peso (kg)</th>
+              <th>% Grasa</th>
+              <th>Cintura</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for progreso in ultimos_progresos %}
+            <tr>
+              <td>{{ progreso.fecha }}</td>
+              <td>{{ progreso.peso }}</td>
+              <td>{{ progreso.grasa_corporal }}</td>
+              <td>{{ progreso.medida_cintura }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center text-muted">No tienes registros aún</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-light mb-4">Lista de Ejercicios</h1>
+    
+    <!-- Botón para desplegar formulario -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8 text-center">
+            <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#formCollapse" 
+                    aria-expanded="false" aria-controls="formCollapse">
+                <i class="fas fa-plus me-2"></i>
+                {% if update %}Editar Ejercicio{% else %}Añadir Nuevo Ejercicio{% endif %}
+            </button>
+            
+            <!-- Formulario desplegable -->
+            <div class="collapse" id="formCollapse">
+                <div class="card bg-dark text-light">
+                    <div class="card-header bg-secondary">
+                        <h5 class="card-title mb-0">
+                            {% if update %}Editar Ejercicio{% else %}Nuevo Ejercicio{% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if update %}
+                        <form method="post" action="{% url 'ejercicios:update' update.id %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nombre" class="form-label">Nombre del Ejercicio *</label>
+                                    <input type="text" value="{{ update.nombre }}" class="form-control" name="nombre" id="nombre" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="tipo" class="form-label">Tipo de Ejercicio *</label>
+                                    <select class="form-select" name="tipo" id="tipo" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option value="fuerza" {% if update.tipo == 'fuerza' %}selected{% endif %}>Fuerza</option>
+                                        <option value="cardio" {% if update.tipo == 'cardio' %}selected{% endif %}>Cardio</option>
+                                        <option value="movilidad" {% if update.tipo == 'movilidad' %}selected{% endif %}>Movilidad</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="grupo_muscular" class="form-label">Grupo Muscular</label>
+                                    <input type="text" value="{{ update.grupo_muscular }}" class="form-control" name="grupo_muscular" id="grupo_muscular">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="video_url" class="form-label">URL del Video</label>
+                                    <input type="url" value="{{ update.video_url }}" class="form-control" name="video_url" id="video_url" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" name="descripcion" id="descripcion" rows="3">{{ update.descripcion }}</textarea>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Actualizar</button>
+                                <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#formCollapse">Cancelar</button>
+                            </div>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{% url 'ejercicios:insert' %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nombre" class="form-label">Nombre del Ejercicio *</label>
+                                    <input type="text" class="form-control" name="nombre" id="nombre" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="tipo" class="form-label">Tipo de Ejercicio *</label>
+                                    <select class="form-select" name="tipo" id="tipo" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option value="fuerza">Fuerza</option>
+                                        <option value="cardio">Cardio</option>
+                                        <option value="movilidad">Movilidad</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="grupo_muscular" class="form-label">Grupo Muscular</label>
+                                    <input type="text" class="form-control" name="grupo_muscular" id="grupo_muscular">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="video_url" class="form-label">URL del Video</label>
+                                    <input type="url" class="form-control" name="video_url" id="video_url" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" name="descripcion" id="descripcion" rows="3"></textarea>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success">Añadir</button>
+                                <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#formCollapse">Cancelar</button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de ejercicios -->
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Ejercicio</th>
+                    <th>Tipo</th>
+                    <th>Grupo Muscular</th>
+                    <th>Video</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ejercicio in ejercicios %}
+                <tr>
+                    <td>{{ ejercicio.id }}</td>
+                    <td>
+                        <strong>{{ ejercicio.nombre }}</strong>
+                        {% if ejercicio.descripcion %}
+                        <br><small class="text-muted">{{ ejercicio.descripcion|truncatewords:5 }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge 
+                            {% if ejercicio.tipo == 'fuerza' %}bg-danger
+                            {% elif ejercicio.tipo == 'cardio' %}bg-success
+                            {% else %}bg-info{% endif %}">
+                            {{ ejercicio.get_tipo_display }}
+                        </span>
+                    </td>
+                    <td>{{ ejercicio.grupo_muscular|default:"-" }}</td>
+                    <td>
+                        {% if ejercicio.video_url %}
+                        <a href="{{ ejercicio.video_url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-video"></i> Ver
+                        </a>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="?edit={{ ejercicio.id }}" class="btn btn-warning btn-sm">Editar</a>
+                        <form action="{% url 'ejercicios:eliminar' ejercicio.id %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" 
+                                    onclick="return confirm('¿Estás seguro de eliminar {{ ejercicio.nombre }}?')">
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <p class="text-light mt-3 text-center">Total de ejercicios: {{ ejercicios|length }}</p>
+</div>
+
+<style>
+.table-dark {
+    background-color: #1e1e1e;
+    border-color: #2d2d2d;
+}
+.table-dark th {
+    background-color: #2d2d2d;
+    color: #f8f9fa;
+    border-color: #3d3d3d;
+}
+.table-dark td {
+    background-color: #1e1e1e;
+    color: #f8f9fa;
+    border-color: #2d2d2d;
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+}
+.badge {
+    font-size: 0.8em;
+}
+/* Centrado y animación suave */
+.collapse {
+    transition: all 0.3s ease;
+}
+.justify-content-center {
+    justify-content: center !important;
+}
+</style>
+
+<!-- Script para manejar el estado del colapso -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Si estamos en modo edición, abrir el formulario automáticamente
+    {% if update %}
+    var formCollapse = new bootstrap.Collapse(document.getElementById('formCollapse'), {
+        toggle: true
+    });
+    {% endif %}
+    
+    // Cerrar el formulario después de enviar
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+            setTimeout(() => {
+                var collapseElement = document.getElementById('formCollapse');
+                var bsCollapse = bootstrap.Collapse.getInstance(collapseElement);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                }
+            }, 1000);
+        });
+    });
+});
+</script>
+{% endblock %}
